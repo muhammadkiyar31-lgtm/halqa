@@ -11,5 +11,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    const darkModeBtn = document.getElementById("darkModeBtn");
+
+    if (darkModeBtn) {
+        const savedMode = localStorage.getItem("halqaDarkMode");
+
+        if (savedMode === "enabled") {
+            document.body.classList.add("dark");
+            darkModeBtn.textContent = "☀️";
+        } else {
+            darkModeBtn.textContent = "🌙";
+        }
+
+        darkModeBtn.addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+
+            if (document.body.classList.contains("dark")) {
+                darkModeBtn.textContent = "☀️";
+                localStorage.setItem("halqaDarkMode", "enabled");
+            } else {
+                darkModeBtn.textContent = "🌙";
+                localStorage.setItem("halqaDarkMode", "disabled");
+            }
+        });
+    }
+
     console.log("Halqa website loaded successfully.");
 });
