@@ -16,10 +16,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-const uploadFolder = path.join(__dirname, "uploads");
+const uploadDir = path.join("/tmp", "uploads");
 
-if (!fs.existsSync(uploadFolder)) {
-    fs.mkdirSync(uploadFolder, { recursive: true });
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 app.use("/uploads", express.static(uploadFolder));
@@ -690,28 +690,48 @@ app.use((error, req, res, next) => {
     });
 });
 
-async function startServer() {
-    try {
-        if (!process.env.MONGODB_URI) {
-            throw new Error("MONGODB_URI is missing in .env");
-        }
+let mongoConnection = null;
 
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is missing in .env");
-        }
-
-        await mongoose.connect(process.env.MONGODB_URI);
-
-        console.log("MongoDB connected successfully.");
-
-        await ensureDirector();
-
-        app.listen(PORT, () => {
-            console.log(`Halqa server is running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error("Server startup failed:", error.message);
-        process.exit(1);
+async function connectDatabase() {
+    if (!process.env.MONGODB_URI) {
+        throw new Error("MONGODB_URI is missing");
     }
+
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is missing");
+    }
+
+    if (!mongoConnection) {
+        mongoConnection = mongoose.connect(process.env.MONGODB_URI)
+            .then(async () => {
+                console.log("MongoDB connected successfully.");
+                await ensureDirector();
+            });
+    }
+
+    return mongoConnection;
 }
-startServer();
+
+app.use("/api", async (req, res, next) => {
+    try {
+        await connectDatabase();
+        next();
+    } catch (error) {
+        console.error("Database connection failed:", error.message);
+        res.status(500).json({
+            message: "Database connection failed."
+        });
+    }
+});
+if (require.main === module) {
+    connectDatabase()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`Halqa server is running on port ${PORT}`);
+            });
+        })
+        .catch((error) => {
+            console.error("Server startup failed:", error.message);
+        });
+}
+module.exports = app;
