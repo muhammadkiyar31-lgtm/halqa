@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Certificate | شهادة</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>HALQA</h1>
+        </div>
+
+        <nav>
+            <a href="director-dashboard.html">
+                Dashboard | لوحة التحكم
+            </a>
+
+            <a href="index.html">
+                Home | الرئيسية
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <div style="margin-bottom: 20px;">
+    <a href="director-dashboard.html" class="btn">
+        ← Back | Duubatti
+    </a>
+</div>
+
+        <section class="card">
+
+            <h1>
+                Certificate Management | إدارة الشهادات
+            </h1>
+
+            <p>
+                Create a certificate for a student.
+                |
+                إنشاء شهادة للطالب.
+            </p>
+
+            <form id="certificateForm">
+
+                <label for="certificateStudent">
+                    Student | الطالب
+                </label>
+
+                <select
+                    id="certificateStudent"
+                    required
+                >
+                    <option value="">
+                        Select Student | اختر الطالب
+                    </option>
+                </select>
+
+                <br><br>
+
+                <label for="certificateStudentId">
+                    Student ID | رقم الطالب
+                </label>
+
+                <input
+                    type="text"
+                    id="certificateStudentId"
+                    readonly
+                >
+
+                <br><br>
+
+                <label for="certificateStudentName">
+                    Student Name | اسم الطالب
+                </label>
+
+                <input
+                    type="text"
+                    id="certificateStudentName"
+                    readonly
+                >
+
+                <br><br>
+
+                <label for="certificateGrade">
+                    Grade | الصف
+                </label>
+
+                <input
+                    type="text"
+                    id="certificateGrade"
+                    readonly
+                >
+
+                <br><br>
+
+                <label for="certificateTitle">
+                    Certificate Title | عنوان الشهادة
+                </label>
+
+                <input
+                    type="text"
+                    id="certificateTitle"
+                    value="CERTIFICATE OF COMPLETION"
+                    required
+                >
+
+                <br><br>
+
+                <label for="certificateDate">
+                    Date | التاريخ
+                </label>
+
+                <input
+                    type="date"
+                    id="certificateDate"
+                    required
+                >
+
+                <br><br>
+
+                <label for="directorName">
+                    Director Name | اسم المدير
+                </label>
+
+                <input
+                    type="text"
+                    id="directorName"
+                    required
+                >
+
+                <br><br>
+
+                <label for="directorSignature">
+                    Director Signature | توقيع المدير
+                </label>
+
+                <input
+                    type="text"
+                    id="directorSignature"
+                    placeholder="Director signature"
+                    required
+                >
+
+                <br><br>
+
+                <button
+                    type="submit"
+                    class="btn"
+                >
+                    Generate Certificate | إنشاء الشهادة
+                </button>
+
+                <p id="certificateMessage"></p>
+
+            </form>
+
+        </section>
+
+
+        <section
+            class="card"
+            id="certificatePreview"
+            style="display: none;"
+        >
+
+            <div
+                id="certificatePaper"
+                style="
+                    width: 780px;
+                    max-width: 90%;
+                    min-height: 500px;
+                    margin: 30px auto;
+                    padding: 35px;
+                    position: relative;
+                    box-sizing: border-box;
+                    text-align: center;
+                    background: linear-gradient(
+                        135deg,
+                        #fff8df,
+                        #ffffff,
+                        #eef7ff
+                    );
+                    border: 8px double #222;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+                "
+            >
+
+                <img
+                    src="logo.png"
+                    alt="Halqa Logo"
+                    style="
+                        position: absolute;
+                        top: 20px;
+                        right: 25px;
+                        width: 75px;
+                        height: 75px;
+                        object-fit: contain;
+                        display: block;
+                    "
+                >
+
+                <div
+                    style="
+                        font-size: 22px;
+                        font-weight: bold;
+                        margin-top: 5px;
+                    "
+                >
+                    HALQA
+                </div>
+
+                <h1
+                    id="previewTitle"
+                    style="
+                        font-size: 32px;
+                        margin: 35px 0 20px;
+                        letter-spacing: 2px;
+                    "
+                >
+                    CERTIFICATE OF COMPLETION
+                </h1>
+
+                <p
+                    style="
+                        font-size: 17px;
+                        margin: 10px 0;
+                    "
+                >
+                    This certificate is proudly presented to
+                </p>
+
+                <h2
+                    id="previewStudentName"
+                    style="
+                        font-size: 29px;
+                        margin: 20px 0;
+                    "
+                >
+                    Student Name
+                </h2>
+
+                <p style="font-size: 17px;">
+                    Student ID:
+                    <strong id="previewStudentId"></strong>
+                </p>
+
+                <p style="font-size: 17px;">
+                    Grade:
+                    <strong id="previewGrade"></strong>
+                </p>
+
+                <p
+                    style="
+                        font-size: 16px;
+                        margin-top: 25px;
+                    "
+                >
+                    This certificate recognizes the successful
+                    completion of school education.
+                </p>
+
+                <div
+                    style="
+                        margin-top: 55px;
+                        text-align: center;
+                    "
+                >
+
+                    <div
+                        id="previewSignature"
+                        style="
+                            font-size: 25px;
+                            font-style: italic;
+                            font-weight: bold;
+                            min-height: 30px;
+                            margin-bottom: 8px;
+                        "
+                    >
+                    </div>
+
+                    <div
+                        style="
+                            width: 210px;
+                            height: 3px;
+                            background-color: #000000;
+                            margin: 0 auto 8px auto;
+                            display: block;
+                        "
+                    ></div>
+
+                    <div
+                        id="previewDirectorName"
+                        style="
+                            font-size: 16px;
+                            font-weight: bold;
+                        "
+                    >
+                    </div>
+
+                    <div
+                        style="
+                            font-size: 15px;
+                            margin-top: 3px;
+                        "
+                    >
+                        Director | المدير
+                    </div>
+
+                    <div
+                        id="previewDate"
+                        style="
+                            font-size: 14px;
+                            margin-top: 12px;
+                        "
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>
+            © 2026 Halqa Education System
+        </p>
+    </footer>
+
+
+    <script>
+
+        const certificateStudent =
+            document.getElementById("certificateStudent");
+
+        const certificateStudentId =
+            document.getElementById("certificateStudentId");
+
+        const certificateStudentName =
+            document.getElementById("certificateStudentName");
+
+        const certificateGrade =
+            document.getElementById("certificateGrade");
+
+        const certificateForm =
+            document.getElementById("certificateForm");
+
+        const certificateMessage =
+            document.getElementById("certificateMessage");
+
+        const token =
+            localStorage.getItem("halqaDirectorToken");
+
+
+        if (!token) {
+            window.location.href = "director-login.html";
+        }
+        async function loadStudents() {
+    const token =
+        localStorage.getItem("halqaDirectorToken");
+
+    if (!token) {
+        window.location.href =
+            "director-login.html";
+        return;
+    }
+
+    try {
+        const response =
+            await fetch("/api/students", {
+                headers: {
+                    "Authorization":
+                        "Bearer " + token
+                }
+            });
+
+        const students =
+            await response.json();
+
+        console.log("Students:", students);
+
+        if (!response.ok) {
+            certificateMessage.textContent =
+                students.message ||
+                "Students could not be loaded.";
+            return;
+        }
+
+        certificateStudent.innerHTML =
+            '<option value="">Select Student | اختر الطالب</option>';
+
+        students.forEach(student => {
+            const option =
+                document.createElement("option");
+
+            option.value =
+                student.studentId;
+
+            option.textContent =
+                student.name +
+                " - " +
+                student.studentId;
+
+            option.dataset.studentId =
+                student.studentId;
+
+            option.dataset.name =
+                student.name;
+
+            option.dataset.grade =
+                student.grade;
+
+            certificateStudent.appendChild(
+                option
+            );
+        });
+
+    } catch (error) {
+        console.error(
+            "Student loading error:",
+            error
+        );
+
+        certificateMessage.textContent =
+            "Students could not be loaded.";
+    }
+}
+       loadStudents();
+       certificateStudent.addEventListener("change", function () {
+    const selectedOption =
+        certificateStudent.options[
+            certificateStudent.selectedIndex
+        ];
+
+    certificateStudentId.value =
+        selectedOption.dataset.studentId || "";
+
+    certificateStudentName.value =
+        selectedOption.dataset.name || "";
+
+    certificateGrade.value =
+        selectedOption.dataset.grade || "";
+});
+
+certificateForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const certificateData = {
+        studentId: certificateStudentId.value,
+        studentName: certificateStudentName.value,
+        grade: certificateGrade.value,
+        title: document.getElementById("certificateTitle").value,
+        date: document.getElementById("certificateDate").value,
+        directorName: document.getElementById("directorName").value,
+        directorSignature: document.getElementById("directorSignature").value
+    };
+
+    try {
+        const response = await fetch("/api/certificates", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(certificateData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            certificateMessage.textContent =
+                data.message ||
+                "Certificate could not be saved.";
+            return;
+        }
+
+        document.getElementById("previewTitle").textContent =
+            certificateData.title;
+
+        document.getElementById("previewStudentName").textContent =
+            certificateData.studentName;
+
+        document.getElementById("previewStudentId").textContent =
+            certificateData.studentId;
+
+        document.getElementById("previewGrade").textContent =
+            certificateData.grade;
+
+        document.getElementById("previewDirectorName").textContent =
+            certificateData.directorName;
+
+        document.getElementById("previewSignature").textContent =
+            certificateData.directorSignature;
+
+        document.getElementById("previewDate").textContent =
+            certificateData.date;
+
+        document.getElementById("certificatePreview").style.display =
+            "block";
+
+        certificateMessage.textContent =
+            "Certificate saved successfully. | تم حفظ الشهادة بنجاح.";
+
+    } catch (error) {
+        console.error(error);
+
+        certificateMessage.textContent =
+            "Server waliin walqunnamtiin hin jiru. | لا يوجد اتصال بالخادم.";
+    }
+});
+
+    </script>
+
+</body>
+</html>

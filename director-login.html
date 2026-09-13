@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Director Login | Halqa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">حلقا | HALQA</div>
+
+        <nav>
+            <a href="index.html">Mana | الرئيسية</a>
+            <a href="barattoota.html">Barattoota | الطلاب</a>
+            <a href="kitaabaa.html">Kitaaba | المكتبة</a>
+            <a href="certificate.html">Ragaa | الشهادة</a>
+            <a href="login-barattootaa.html">Seensa Barataa | دخول الطالب</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Director Login</h1>
+            <h2>Seensa Director | دخول المدير</h2>
+            <p>
+                Odeeffannoo Director fayyadamuun seeni.
+                <br>
+                استخدم بيانات المدير لتسجيل الدخول.
+            </p>
+        </section>
+
+        <section class="card login-box">
+            <h2>Director Login | دخول المدير</h2>
+
+            <form id="directorLoginForm">
+
+                <label for="directorEmail">
+                    Email | البريد الإلكتروني
+                </label>
+
+                <input
+                    type="email"
+                    id="directorEmail"
+                    name="email"
+                    placeholder="Director email"
+                    required
+                >
+
+                <br><br>
+
+                <label for="directorPassword">
+                    Password | كلمة المرور
+                </label>
+
+                <input
+                    type="password"
+                    id="directorPassword"
+                    name="password"
+                    placeholder="Director password"
+                    required
+                >
+
+                <br><br>
+
+                <button class="btn" type="submit">
+                    Seeni | دخول
+                </button>
+            </form>
+
+            <p id="directorLoginMessage"></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 Halqa | حلقا</p>
+        <p>
+            Barnootaaf, beekumsaaf fi guddinaaf
+            |
+            للتعليم والمعرفة والتقدم
+        </p>
+    </footer>
+
+    <script src="javascript.js"></script>
+
+    <script>
+        const directorLoginForm =
+            document.getElementById("directorLoginForm");
+
+        const directorLoginMessage =
+            document.getElementById("directorLoginMessage");
+
+        directorLoginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            directorLoginMessage.textContent =
+                "Seensa mirkaneessaa jira... | جاري التحقق...";
+
+            const email =
+                document.getElementById("directorEmail").value;
+
+            const password =
+                document.getElementById("directorPassword").value;
+
+            try {
+                const response = await fetch("/api/director/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem("halqaDirector", "true");
+                    localStorage.setItem("halqaDirectorToken", data.token);
+
+                    directorLoginMessage.textContent =
+                        "Seensi Director milkaa'e. | تم تسجيل دخول المدير بنجاح.";
+
+                    setTimeout(() => {
+                        window.location.href =
+                            "director-dashboard.html";
+                    }, 1000);
+                } else {
+                    directorLoginMessage.textContent =
+                        data.message ||
+                        "Email ykn password sirrii miti. | البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+                }
+
+            } catch (error) {
+                directorLoginMessage.textContent =
+                    "Server waliin walqunnamtiin hin jiru. | لا يوجد اتصال بالخادم.";
+            }
+        });
+    </script>
+
+</body>
+</html>

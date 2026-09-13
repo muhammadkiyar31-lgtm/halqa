@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barattoota - الطلاب | Halqa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">حلقا | HALQA</div>
+
+        <nav>
+            <a href="index.html">Mana | الرئيسية</a>
+            <a href="barattoota.html">Barattoota | الطلاب</a>
+            <a href="kitaabaa.html">Kitaaba | المكتبة</a>
+            <a href="certificate.html">Ragaa | الشهادة</a>
+            <a href="login-barattootaa.html">Seensa Barataa | دخول الطالب</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="card registration-box">
+
+    <h2>تسجيل الطالب</h2>
+
+    <form id="studentForm" enctype="multipart/form-data">
+
+        <label for="studentName">
+            الاسم الكامل
+        </label>
+
+        <input
+            type="text"
+            id="studentName"
+            name="name"
+            placeholder="أدخل الاسم الكامل"
+            required
+        >
+
+        <br><br>
+
+        <label for="studentGender">
+            الجنس
+        </label>
+
+        <select
+            id="studentGender"
+            name="gender"
+            required
+        >
+            <option value="">
+                اختر الجنس
+            </option>
+
+            <option value="Male">
+                ذكر
+            </option>
+
+            <option value="Female">
+                أنثى
+            </option>
+        </select>
+
+        <br><br>
+
+        <label for="studentAge">
+            العمر
+        </label>
+
+        <input
+            type="number"
+            id="studentAge"
+            name="age"
+            min="1"
+            max="100"
+            placeholder="أدخل العمر"
+            required
+        >
+
+        <br><br>
+
+        <label for="studentGrade">
+            الصف
+        </label>
+
+        <select
+            id="studentGrade"
+            name="grade"
+            required
+        >
+            <option value="">
+                اختر الصف
+            </option>
+
+            <option value="1">
+                الصف الأول
+            </option>
+
+            <option value="2">
+                الصف الثاني
+            </option>
+
+            <option value="3">
+                الصف الثالث
+            </option>
+
+            <option value="4">
+                الصف الرابع
+            </option>
+
+            <option value="5">
+                الصف الخامس
+            </option>
+
+            <option value="6">
+                الصف السادس
+            </option>
+
+            <option value="7">
+                الصف السابع
+            </option>
+
+            <option value="8">
+                الصف الثامن
+            </option>
+        </select>
+
+        <br><br>
+
+        <label for="parentPhone">
+            رقم هاتف ولي الأمر
+        </label>
+
+        <input
+            type="tel"
+            id="parentPhone"
+            name="parentPhone"
+            placeholder="أدخل رقم الهاتف"
+            required
+        >
+
+        <br><br>
+
+        <label for="subCity">
+            المنطقة / الحي
+        </label>
+
+        <input
+            type="text"
+            id="subCity"
+            name="subCity"
+            placeholder="أدخل المنطقة أو الحي"
+            required
+        >
+
+        <br><br>
+
+        <label for="studentPhoto">
+            صورة الطالب
+        </label>
+
+        <input
+            type="file"
+            id="studentPhoto"
+            name="photo"
+            accept="image/*"
+            required
+        >
+
+        <br><br>
+
+        <button
+            type="submit"
+            class="btn"
+        >
+            تسجيل الطالب
+        </button>
+
+        <p id="studentMessage"></p>
+
+    </form>
+
+</section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 Halqa | حلقا</p>
+
+        <p>
+            Barnootaaf, beekumsaaf fi guddinaaf
+            |
+            للتعليم والمعرفة والتقدم
+        </p>
+    </footer>
+
+   <script>
+    const studentForm =
+        document.getElementById("studentForm");
+
+    const studentMessage =
+        document.getElementById("studentMessage");
+
+    studentForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        studentMessage.textContent =
+            "Galmeessaa jira... | جاري التسجيل...";
+
+        const formData = new FormData(studentForm);
+
+        try {
+            const response = await fetch(
+                "/api/students/register",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                studentMessage.textContent =
+                    "Galmeen milkaa'e. Student ID kee: " +
+                    data.studentId +
+                    " | تم تسجيل الطالب بنجاح. رقم الطالب: " +
+                    data.studentId;
+
+                studentForm.reset();
+
+            } else {
+                studentMessage.textContent =
+                    data.message ||
+                    "Registration failed. | فشل التسجيل.";
+            }
+
+        } catch (error) {
+            console.error(error);
+
+            studentMessage.textContent =
+                "Server waliin walqunnamtiin hin jiru. | لا يوجد اتصال بالخادم.";
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitaaba - المكتبة | Halqa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">حلقا | HALQA</div>
+
+        <nav>
+            <a href="index.html">Mana | الرئيسية</a>
+            <a href="barattoota.html">Barattoota | الطلاب</a>
+            <a href="kitaabaa.html">Kitaaba | المكتبة</a>
+            <a href="certificate.html">Ragaa | الشهادة</a>
+            <a href="login-barattootaa.html">Seensa Barataa | دخول الطالب</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <h1>Kitaaba | المكتبة</h1>
+
+            <p>
+                Kitaabota barnootaa dubbisi, ilaali fi buufadhu.
+                <br>
+                اقرأ الكتب التعليمية وشاهدها وحمّلها.
+            </p>
+        </section>
+
+       <section class="features">
+    <div id="booksList">
+        <p>
+            Kitaabota fe'aa jira...
+            <br>
+            جاري تحميل الكتب...
+        </p>
+    </div>
+</section>
+
+<script>
+    const booksList = document.getElementById("booksList");
+
+    async function loadBooks() {
+        try {
+            const response = await fetch("/api/books");
+            const books = await response.json();
+
+            if (books.length === 0) {
+                booksList.innerHTML = `
+                    <p>
+                        Kitaabni amma hin jiru.
+                        <br>
+                        لا توجد كتب متاحة حالياً.
+                    </p>
+                `;
+                return;
+            }
+
+            booksList.innerHTML = "";
+
+            books.forEach(book => {
+                const bookCard = document.createElement("div");
+
+                bookCard.className = "card";
+
+                bookCard.innerHTML = `
+                    <h2>${book.title}</h2>
+
+                    <a
+                        href="${book.file}"
+                        target="_blank"
+                        class="btn"
+                    >
+                        Ilaali | قراءة
+                    </a>
+
+                    <a
+                        href="${book.file}"
+                        download
+                        class="btn"
+                    >
+                        Buufadhu | تحميل
+                    </a>
+                `;
+
+                booksList.appendChild(bookCard);
+            });
+
+        } catch (error) {
+            booksList.innerHTML = `
+                <p>
+                    Server waliin walqunnamtiin hin jiru.
+                    <br>
+                    لا يوجد اتصال بالخادم.
+                </p>
+            `;
+        }
+    }
+
+    loadBooks();
+</script>
+        
+    </main>
+
+    <footer>
+        <p>© 2026 Halqa | حلقا</p>
+
+        <p>
+            Barnootaaf, beekumsaaf fi guddinaaf
+            |
+            للتعليم والمعرفة والتقدم
+        </p>
+    </footer>
+
+    <script src="javascript.js"></script>
+
+    <script>
+    const bookUploadForm = document.getElementById("bookUploadForm");
+    const bookMessage = document.getElementById("bookMessage");
+
+    bookUploadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        bookMessage.textContent =
+            "Kitaaba olkaa'aa jira... | جاري رفع الكتاب...";
+
+        const formData = new FormData(bookUploadForm);
+
+        try {
+            const response = await fetch("/api/books/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                bookMessage.textContent =
+                    "Kitaabni milkaa'inaan olkaa'ame. | تم رفع الكتاب بنجاح.";
+
+                bookUploadForm.reset();
+            } else {
+                bookMessage.textContent =
+                    data.message ||
+                    "Kitaabni hin olkaa'amne. | فشل رفع الكتاب.";
+            }
+        } catch (error) {
+            bookMessage.textContent =
+                "Server waliin walqunnamtiin hin jiru. | لا يوجد اتصال بالخادم.";
+        }
+    });
+</script>
+
+</body>
+</html>
