@@ -9,7 +9,8 @@
 <body>
 
     <header>
-       <button id="darkModeBtn" type="button">🌙</button>
+        <button id="darkModeBtn" type="button">🌙</button>
+
         <div class="logo">حلقا | HALQA</div>
 
         <nav>
@@ -17,14 +18,15 @@
             <a href="barattoota.html">Barattoota | الطلاب</a>
             <a href="kitaabaa.html">Kitaaba | المكتبة</a>
             <a href="certificate.html">Ragaa | الشهادة</a>
-            <a href="login-barattootaa.html">Seensa Barataa | دخول الطالب</a>
         </nav>
     </header>
 
     <main>
         <section class="hero">
             <h1>Director Login</h1>
+
             <h2>Seensa Director | دخول المدير</h2>
+
             <p>
                 Odeeffannoo Director fayyadamuun seeni.
                 <br>
@@ -46,6 +48,7 @@
                     id="directorEmail"
                     name="email"
                     placeholder="Director email"
+                    autocomplete="email"
                     required
                 >
 
@@ -60,6 +63,7 @@
                     id="directorPassword"
                     name="password"
                     placeholder="Director password"
+                    autocomplete="current-password"
                     required
                 >
 
@@ -68,6 +72,7 @@
                 <button class="btn" type="submit">
                     Seeni | دخول
                 </button>
+
             </form>
 
             <p id="directorLoginMessage"></p>
@@ -76,6 +81,7 @@
 
     <footer>
         <p>© 2026 Halqa | حلقا</p>
+
         <p>
             Barnootaaf, beekumsaaf fi guddinaaf
             |
@@ -120,7 +126,10 @@
 
                 if (response.ok) {
                     localStorage.setItem("halqaDirector", "true");
-                    localStorage.setItem("halqaDirectorToken", data.token);
+                    localStorage.setItem(
+                        "halqaDirectorToken",
+                        data.token
+                    );
 
                     directorLoginMessage.textContent =
                         "Seensi Director milkaa'e. | تم تسجيل دخول المدير بنجاح.";
@@ -129,6 +138,7 @@
                         window.location.href =
                             "director-dashboard.html";
                     }, 1000);
+
                 } else {
                     directorLoginMessage.textContent =
                         data.message ||
@@ -141,7 +151,6 @@
             }
         });
     </script>
-    <script src="javascript.js"></script>
 
 </body>
 </html>

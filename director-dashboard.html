@@ -8,17 +8,19 @@
 </head>
 <body>
 
-    <header>
-       <button id="darkModeBtn" type="button">🌙</button>
-        <div class="logo">حلقا | HALQA</div>
+<header>
+    <button id="darkModeBtn" type="button">🌙</button>
 
-        <nav>
-            <a href="index.html">Mana | الرئيسية</a>
-            <a href="barattoota.html">Barattoota | الطلاب</a>
-            <a href="kitaabaa.html">Kitaaba | المكتبة</a>
-            <a href="certificate.html">Ragaa | الشهادة</a>
-        </nav>
-    </header>
+    <div class="logo">حلقا | HALQA</div>
+
+    <nav>
+        <a href="index.html">Mana | الرئيسية</a>
+        <a href="barattoota.html">Barattoota | الطلاب</a>
+        <a href="kitaabaa.html">Kitaaba | المكتبة</a>
+        <a href="certificate.html">Ragaa | الشهادة</a>
+    </nav>
+</header>
+
 <main>
 
     <section class="hero">
@@ -30,6 +32,7 @@
     </section>
 
     <section class="card">
+
         <h2>إدارة الطلاب</h2>
 
         <p>
@@ -37,20 +40,23 @@
         </p>
 
         <div class="student-search-box">
-    <input
-        type="text"
-        id="studentSearch"
-        placeholder="اكتب اسم الطالب أو رقم الطالب"
-    >
 
-    <button
-        type="button"
-        class="btn"
-        id="studentSearchBtn"
-    >
-        بحث
-    </button>
-</div>
+            <input
+                type="text"
+                id="studentSearch"
+                placeholder="اكتب اسم الطالب أو رقم الطالب"
+            >
+
+            <button
+                type="button"
+                class="btn"
+                id="studentSearchBtn"
+            >
+                بحث
+            </button>
+
+        </div>
+
         <div id="studentStats" class="student-stats"></div>
 
         <div id="studentsList">
@@ -60,6 +66,35 @@
         </div>
 
         <p id="studentListMessage"></p>
+
+    </section>
+
+    <section class="card">
+
+        <h2>إدارة تسجيل الطلاب</h2>
+
+        <p>
+            التحكم في فتح أو إيقاف تسجيل الطلاب.
+        </p>
+
+        <div class="registration-control">
+
+            <div id="registrationStatus">
+                جاري تحميل حالة التسجيل...
+            </div>
+
+            <button
+                type="button"
+                class="btn"
+                id="registrationToggleBtn"
+            >
+                جاري التحميل...
+            </button>
+
+        </div>
+
+        <p id="registrationMessage"></p>
+
     </section>
 
     <section class="card">
@@ -147,6 +182,7 @@
     <button
         class="btn"
         id="logoutBtn"
+        type="button"
     >
         تسجيل الخروج
     </button>
@@ -154,488 +190,538 @@
 </main>
 
 <footer>
-    <p>© 2026 Halqa | حلقا</p>
+
+    <p>
+        © 2026 Halqa | حلقا
+    </p>
+
 </footer>
 
+<script>
 
-   <script>
-    const studentsList =
-        document.getElementById("studentsList");
+const studentsList =
+    document.getElementById("studentsList");
 
-    const studentListMessage =
-        document.getElementById("studentListMessage");
+const studentListMessage =
+    document.getElementById("studentListMessage");
 
-    const studentStats =
-        document.getElementById("studentStats");
+const studentStats =
+    document.getElementById("studentStats");
 
-    const studentSearch =
-        document.getElementById("studentSearch");
+const studentSearch =
+    document.getElementById("studentSearch");
 
-    const studentSearchBtn =
-        document.getElementById("studentSearchBtn");
+const studentSearchBtn =
+    document.getElementById("studentSearchBtn");
 
-    let allStudents = [];
+let allStudents = [];
 
-    async function loadStudents() {
-        const token =
-            localStorage.getItem("halqaDirectorToken");
+async function loadStudents() {
 
-        if (!token) {
-            window.location.href =
-                "director-login.html";
+    const token =
+        localStorage.getItem("halqaDirectorToken");
+
+    if (!token) {
+        window.location.href =
+            "director-login.html";
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch("/api/students", {
+                headers: {
+                    "Authorization":
+                        "Bearer " + token
+                }
+            });
+
+        const students =
+            await response.json();
+
+        if (!response.ok) {
+
+            studentListMessage.textContent =
+                students.message ||
+                "تعذر تحميل بيانات الطلاب.";
+
             return;
         }
 
-        try {
-            const response =
-                await fetch("/api/students", {
+        allStudents = students;
+
+        showStudentStats();
+        displayStudents(allStudents);
+
+    } catch (error) {
+
+        console.error(error);
+
+        studentListMessage.textContent =
+            "لا يوجد اتصال بالخادم.";
+    }
+}
+
+function showStudentStats() {
+
+    const grades = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+    ];
+
+    const gradeNames = {
+        "1": "الصف الأول",
+        "2": "الصف الثاني",
+        "3": "الصف الثالث",
+        "4": "الصف الرابع",
+        "5": "الصف الخامس",
+        "6": "الصف السادس",
+        "7": "الصف السابع",
+        "8": "الصف الثامن"
+    };
+
+    let statsHTML = `
+
+        <div class="student-stat-card">
+
+            <div class="student-stat-icon">
+                👨‍🎓
+            </div>
+
+            <h3>
+                إجمالي الطلاب
+            </h3>
+
+            <p class="student-stat-number">
+                ${allStudents.length}
+            </p>
+
+        </div>
+
+    `;
+
+    grades.forEach(grade => {
+
+        const count =
+            allStudents.filter(
+                student =>
+                    String(student.grade) === grade
+            ).length;
+
+        statsHTML += `
+
+            <div class="student-stat-card">
+
+                <div class="student-stat-icon">
+                    📚
+                </div>
+
+                <h3>
+                    ${gradeNames[grade]}
+                </h3>
+
+                <p class="student-stat-number">
+                    ${count}
+                </p>
+
+            </div>
+
+        `;
+    });
+
+    studentStats.innerHTML =
+        statsHTML;
+}
+
+function displayStudents(students) {
+
+    const grades = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+    ];
+
+    const gradeNames = {
+        "1": "الصف الأول",
+        "2": "الصف الثاني",
+        "3": "الصف الثالث",
+        "4": "الصف الرابع",
+        "5": "الصف الخامس",
+        "6": "الصف السادس",
+        "7": "الصف السابع",
+        "8": "الصف الثامن"
+    };
+
+    if (students.length === 0) {
+
+        studentsList.innerHTML = `
+            <p>
+                لا يوجد طالب مطابق للبحث.
+            </p>
+        `;
+
+        return;
+    }
+
+    studentsList.innerHTML = "";
+
+    grades.forEach(grade => {
+
+        const gradeStudents =
+            students.filter(
+                student =>
+                    String(student.grade) === grade
+            );
+
+        if (gradeStudents.length === 0) {
+            return;
+        }
+
+        const gradeSection =
+            document.createElement("div");
+
+        gradeSection.className =
+            "grade-student-section";
+
+        gradeSection.innerHTML = `
+
+            <h2 class="grade-student-title">
+                ${gradeNames[grade]}
+            </h2>
+
+            <div class="grade-table-wrapper">
+
+                <table class="students-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>
+                                رقم الطالب
+                            </th>
+
+                            <th>
+                                الاسم الكامل
+                            </th>
+
+                            <th>
+                                الجنس
+                            </th>
+
+                            <th>
+                                العمر
+                            </th>
+
+                            <th>
+                                هاتف ولي الأمر
+                            </th>
+
+                            <th>
+                                المنطقة / الحي
+                            </th>
+
+                            <th>
+                                صورة الطالب
+                            </th>
+
+                            <th>
+                                إجراء
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+        `;
+
+        const tableBody =
+            gradeSection.querySelector("tbody");
+
+        gradeStudents.forEach(
+            (student, index) => {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${student.studentId}
+                    </td>
+
+                    <td>
+                        ${student.name}
+                    </td>
+
+                    <td>
+                        ${
+                            student.gender === "Male"
+                                ? "ذكر"
+                                : "أنثى"
+                        }
+                    </td>
+
+                    <td>
+                        ${student.age}
+                    </td>
+
+                    <td>
+                        ${student.parentPhone}
+                    </td>
+
+                    <td>
+                        ${student.subCity}
+                    </td>
+
+                    <td>
+
+                        <img
+                            src="${student.photo}"
+                            alt="${student.name}"
+                            class="student-table-photo"
+                        >
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="btn"
+                            onclick="deleteStudent('${student._id}')"
+                        >
+                            حذف
+                        </button>
+
+                    </td>
+
+                `;
+
+                tableBody.appendChild(row);
+            }
+        );
+
+        studentsList.appendChild(
+            gradeSection
+        );
+    });
+}
+
+function searchStudents() {
+
+    const searchValue =
+        studentSearch.value
+            .trim()
+            .toLowerCase();
+
+    if (searchValue === "") {
+
+        displayStudents(allStudents);
+
+        return;
+    }
+
+    const filteredStudents =
+        allStudents.filter(student => {
+
+            const name =
+                String(student.name || "")
+                    .toLowerCase();
+
+            const studentId =
+                String(student.studentId || "")
+                    .toLowerCase();
+
+            return (
+                name.includes(searchValue) ||
+                studentId.includes(searchValue)
+            );
+        });
+
+    displayStudents(filteredStudents);
+}
+
+async function deleteStudent(studentId) {
+
+    const token =
+        localStorage.getItem(
+            "halqaDirectorToken"
+        );
+
+    if (!token) {
+
+        window.location.href =
+            "director-login.html";
+
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            "هل تريد حذف هذا الطالب؟"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/students/" + studentId,
+                {
+                    method: "DELETE",
                     headers: {
                         "Authorization":
                             "Bearer " + token
                     }
-                });
-
-            const students =
-                await response.json();
-
-            if (!response.ok) {
-                studentListMessage.textContent =
-                    students.message ||
-                    "تعذر تحميل بيانات الطلاب.";
-                return;
-            }
-
-            allStudents = students;
-
-            showStudentStats();
-            displayStudents(allStudents);
-
-        } catch (error) {
-            console.error(error);
-
-            studentListMessage.textContent =
-                "لا يوجد اتصال بالخادم.";
-        }
-    }
-
-    function showStudentStats() {
-        const grades = [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-        ];
-
-        const gradeNames = {
-            "1": "الصف الأول جمال",
-            "2": "الصف الثاني",
-            "3": "الصف الثالث",
-            "4": "الصف الرابع",
-            "5": "الصف الخامس",
-            "6": "الصف السادس",
-            "7": "الصف السابع",
-            "8": "الصف الثامن"
-        };
-
-        let statsHTML = `
-            <div class="student-stat-card">
-                <div class="student-stat-icon">
-                    👨‍🎓
-                </div>
-
-                <h3>إجمالي الطلاب</h3>
-
-                <p class="student-stat-number">
-                    ${allStudents.length}
-                </p>
-            </div>
-        `;
-
-        grades.forEach(grade => {
-            const count =
-                allStudents.filter(
-                    student =>
-                        String(student.grade) === grade
-                ).length;
-
-            statsHTML += `
-                <div class="student-stat-card">
-                    <div class="student-stat-icon">
-                        📚
-                    </div>
-
-                    <h3>
-                        ${gradeNames[grade]}
-                    </h3>
-
-                    <p class="student-stat-number">
-                        ${count}
-                    </p>
-                </div>
-            `;
-        });
-
-        studentStats.innerHTML = statsHTML;
-    }
-
-    function displayStudents(students) {
-        const grades = [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-        ];
-
-        const gradeNames = {
-            "1": "الصف الأول جمال",
-            "2": "الصف الثاني",
-            "3": "الصف الثالث",
-            "4": "الصف الرابع",
-            "5": "الصف الخامس",
-            "6": "الصف السادس",
-            "7": "الصف السابع",
-            "8": "الصف الثامن"
-        };
-
-        if (students.length === 0) {
-            studentsList.innerHTML = `
-                <p>
-                    لا يوجد طالب مطابق للبحث.
-                </p>
-            `;
-            return;
-        }
-
-        studentsList.innerHTML = "";
-
-        grades.forEach(grade => {
-            const gradeStudents =
-                students.filter(
-                    student =>
-                        String(student.grade) === grade
-                );
-
-            if (gradeStudents.length === 0) {
-                return;
-            }
-
-            const gradeSection =
-                document.createElement("div");
-
-            gradeSection.className =
-                "grade-student-section";
-
-            gradeSection.innerHTML = `
-                <h2 class="grade-student-title">
-                    ${gradeNames[grade]}
-                </h2>
-
-                <div class="grade-table-wrapper">
-                    <table class="students-table">
-
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>رقم الطالب</th>
-                                <th>الاسم الكامل</th>
-                                <th>الجنس</th>
-                                <th>العمر</th>
-                                <th>هاتف ولي الأمر</th>
-                                <th>المنطقة / الحي</th>
-                                <th>صورة الطالب</th>
-                            </tr>
-                        </thead>
-
-                        <tbody></tbody>
-
-                    </table>
-                </div>
-            `;
-
-            const tableBody =
-                gradeSection.querySelector("tbody");
-
-            gradeStudents.forEach(
-                (student, index) => {
-
-                    const row =
-                        document.createElement("tr");
-
-                    row.innerHTML = `
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${student.studentId}
-                        </td>
-
-                        <td>
-                            ${student.name}
-                        </td>
-
-                        <td>
-                            ${
-                                student.gender === "Male"
-                                    ? "ذكر"
-                                    : "أنثى"
-                            }
-                        </td>
-
-                        <td>
-                            ${student.age}
-                        </td>
-
-                        <td>
-                            ${student.parentPhone}
-                        </td>
-
-                        <td>
-                            ${student.subCity}
-                        </td>
-
-                        <td>
-                            <img
-                                src="${student.photo}"
-                                alt="${student.name}"
-                                class="student-table-photo"
-                            >
-                        </td>
-                    `;
-
-                    tableBody.appendChild(row);
                 }
             );
 
-            studentsList.appendChild(
-                gradeSection
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            alert(
+                data.message ||
+                "فشل حذف الطالب."
             );
-        });
-    }
 
-    function searchStudents() {
-        const searchValue =
-            studentSearch.value
-                .trim()
-                .toLowerCase();
-
-        if (searchValue === "") {
-            displayStudents(allStudents);
             return;
         }
 
-        const filteredStudents =
-            allStudents.filter(student => {
+        alert(
+            "تم حذف الطالب بنجاح."
+        );
 
-                const name =
-                    String(student.name || "")
-                        .toLowerCase();
+        loadStudents();
 
-                const studentId =
-                    String(student.studentId || "")
-                        .toLowerCase();
+    } catch (error) {
 
-                return (
-                    name.includes(searchValue) ||
-                    studentId.includes(searchValue)
-                );
-            });
+        console.error(error);
 
-        displayStudents(filteredStudents);
+        alert(
+            "لا يوجد اتصال بالخادم."
+        );
     }
+}
 
-    studentSearchBtn.addEventListener(
-        "click",
-        searchStudents
-    );
+studentSearchBtn.addEventListener(
+    "click",
+    searchStudents
+);
 
-    studentSearch.addEventListener(
-        "input",
-        searchStudents
-    );
+studentSearch.addEventListener(
+    "input",
+    searchStudents
+);
 
-    loadStudents();
+loadStudents();
+
 </script>
 
 <script>
-    const bookUploadForm =
-        document.getElementById("bookUploadForm");
 
-    const bookUploadMessage =
-        document.getElementById("bookUploadMessage");
-
-    const directorBooksList =
-        document.getElementById("directorBooksList");
-
-    const deleteBookMessage =
-        document.getElementById("deleteBookMessage");
-
-    const logoutBtn =
-        document.getElementById("logoutBtn");
-
-    bookUploadForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            const token =
-                localStorage.getItem(
-                    "halqaDirectorToken"
-                );
-
-            if (!token) {
-                window.location.href =
-                    "director-login.html";
-                return;
-            }
-
-            const bookTitle =
-                document.getElementById(
-                    "bookTitle"
-                ).value.trim();
-
-            const bookFile =
-                document.getElementById(
-                    "bookFile"
-                ).files[0];
-
-            if (!bookTitle || !bookFile) {
-                bookUploadMessage.textContent =
-                    "يرجى إدخال عنوان الكتاب واختيار ملف PDF.";
-                return;
-            }
-
-            const formData =
-                new FormData();
-
-            formData.append(
-                "bookTitle",
-                bookTitle
-            );
-
-            formData.append(
-                "bookFile",
-                bookFile
-            );
-
-            bookUploadMessage.textContent =
-                "جاري رفع الكتاب...";
-
-            try {
-                const response =
-                    await fetch(
-                        "/api/books/upload",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Authorization":
-                                    "Bearer " + token
-                            },
-                            body: formData
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-                    bookUploadMessage.textContent =
-                        data.message ||
-                        "فشل رفع الكتاب.";
-                    return;
-                }
-
-                bookUploadMessage.textContent =
-                    "تم رفع الكتاب بنجاح.";
-
-                bookUploadForm.reset();
-
-                loadDirectorBooks();
-
-            } catch (error) {
-                console.error(error);
-
-                bookUploadMessage.textContent =
-                    "لا يوجد اتصال بالخادم.";
-            }
-        }
+const registrationStatus =
+    document.getElementById(
+        "registrationStatus"
     );
 
-    async function loadDirectorBooks() {
-        try {
-            const response =
-                await fetch("/api/books");
+const registrationToggleBtn =
+    document.getElementById(
+        "registrationToggleBtn"
+    );
 
-            const books =
-                await response.json();
+const registrationMessage =
+    document.getElementById(
+        "registrationMessage"
+    );
 
-            if (!response.ok) {
-                directorBooksList.innerHTML =
-                    "<p>فشل تحميل الكتب.</p>";
-                return;
-            }
+let registrationOpen = true;
 
-            if (books.length === 0) {
-                directorBooksList.innerHTML =
-                    "<p>لا توجد كتب حتى الآن.</p>";
-                return;
-            }
+async function loadRegistrationStatus() {
 
-            directorBooksList.innerHTML = "";
+    try {
 
-            books.forEach(book => {
+        const response =
+            await fetch(
+                "/api/registration-status"
+            );
 
-                const bookItem =
-                    document.createElement("div");
+        const data =
+            await response.json();
 
-                bookItem.className =
-                    "card";
+        if (!response.ok) {
 
-                bookItem.innerHTML = `
-                    <h3>
-                        ${book.title}
-                    </h3>
+            registrationStatus.textContent =
+                "تعذر تحميل حالة التسجيل.";
 
-                    <a
-                        href="${book.file}"
-                        target="_blank"
-                        class="btn"
-                    >
-                        قراءة الكتاب
-                    </a>
-
-                    <button
-                        class="btn"
-                        type="button"
-                        onclick="deleteBook('${book._id}')"
-                    >
-                        حذف الكتاب
-                    </button>
-                `;
-
-                directorBooksList.appendChild(
-                    bookItem
-                );
-            });
-
-        } catch (error) {
-            console.error(error);
-
-            directorBooksList.innerHTML =
-                "<p>لا يوجد اتصال بالخادم.</p>";
+            return;
         }
-    }
 
-    async function deleteBook(bookId) {
+        registrationOpen =
+            data.registrationOpen;
+
+        updateRegistrationUI();
+
+    } catch (error) {
+
+        console.error(error);
+
+        registrationStatus.textContent =
+            "لا يوجد اتصال بالخادم.";
+    }
+}
+
+function updateRegistrationUI() {
+
+    if (registrationOpen) {
+
+        registrationStatus.textContent =
+            "🟢 تسجيل الطلاب مفتوح";
+
+        registrationToggleBtn.textContent =
+            "إيقاف تسجيل الطلاب";
+
+    } else {
+
+        registrationStatus.textContent =
+            "🔴 تسجيل الطلاب متوقف";
+
+        registrationToggleBtn.textContent =
+            "فتح تسجيل الطلاب";
+    }
+}
+
+registrationToggleBtn.addEventListener(
+    "click",
+    async function () {
 
         const token =
             localStorage.getItem(
@@ -643,30 +729,36 @@
             );
 
         if (!token) {
+
             window.location.href =
                 "director-login.html";
+
             return;
         }
 
-        const confirmed =
-            confirm(
-                "هل تريد حذف هذا الكتاب؟"
-            );
-
-        if (!confirmed) {
-            return;
-        }
+        registrationToggleBtn.disabled =
+            true;
 
         try {
+
             const response =
                 await fetch(
-                    "/api/books/" + bookId,
+                    "/api/registration-status",
                     {
-                        method: "DELETE",
+                        method: "PUT",
+
                         headers: {
+                            "Content-Type":
+                                "application/json",
+
                             "Authorization":
                                 "Bearer " + token
-                        }
+                        },
+
+                        body: JSON.stringify({
+                            registrationOpen:
+                                !registrationOpen
+                        })
                     }
                 );
 
@@ -674,44 +766,328 @@
                 await response.json();
 
             if (!response.ok) {
-                deleteBookMessage.textContent =
+
+                registrationMessage.textContent =
                     data.message ||
-                    "فشل حذف الكتاب.";
+                    "تعذر تغيير حالة التسجيل.";
+
                 return;
             }
 
-            deleteBookMessage.textContent =
-                "تم حذف الكتاب بنجاح.";
+            registrationOpen =
+                data.registrationOpen;
+
+            updateRegistrationUI();
+
+            registrationMessage.textContent =
+                data.message;
+
+        } catch (error) {
+
+            console.error(error);
+
+            registrationMessage.textContent =
+                "لا يوجد اتصال بالخادم.";
+
+        } finally {
+
+            registrationToggleBtn.disabled =
+                false;
+        }
+    }
+);
+
+loadRegistrationStatus();
+
+</script>
+
+<script>
+
+const bookUploadForm =
+    document.getElementById(
+        "bookUploadForm"
+    );
+
+const bookUploadMessage =
+    document.getElementById(
+        "bookUploadMessage"
+    );
+
+const directorBooksList =
+    document.getElementById(
+        "directorBooksList"
+    );
+
+const deleteBookMessage =
+    document.getElementById(
+        "deleteBookMessage"
+    );
+
+const logoutBtn =
+    document.getElementById(
+        "logoutBtn"
+    );
+
+bookUploadForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+        const token =
+            localStorage.getItem(
+                "halqaDirectorToken"
+            );
+
+        if (!token) {
+
+            window.location.href =
+                "director-login.html";
+
+            return;
+        }
+
+        const bookTitle =
+            document.getElementById(
+                "bookTitle"
+            ).value.trim();
+
+        const bookFile =
+            document.getElementById(
+                "bookFile"
+            ).files[0];
+
+        if (!bookTitle || !bookFile) {
+
+            bookUploadMessage.textContent =
+                "يرجى إدخال عنوان الكتاب واختيار ملف PDF.";
+
+            return;
+        }
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "bookTitle",
+            bookTitle
+        );
+
+        formData.append(
+            "bookFile",
+            bookFile
+        );
+
+        bookUploadMessage.textContent =
+            "جاري رفع الكتاب...";
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/books/upload",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Authorization":
+                                "Bearer " + token
+                        },
+
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                bookUploadMessage.textContent =
+                    data.message ||
+                    "فشل رفع الكتاب.";
+
+                return;
+            }
+
+            bookUploadMessage.textContent =
+                "تم رفع الكتاب بنجاح.";
+
+            bookUploadForm.reset();
 
             loadDirectorBooks();
 
         } catch (error) {
+
             console.error(error);
 
-            deleteBookMessage.textContent =
+            bookUploadMessage.textContent =
                 "لا يوجد اتصال بالخادم.";
         }
     }
+);
 
-    logoutBtn.addEventListener(
-        "click",
-        function () {
+async function loadDirectorBooks() {
 
-            localStorage.removeItem(
-                "halqaDirector"
-            );
+    try {
 
-            localStorage.removeItem(
-                "halqaDirectorToken"
-            );
+        const response =
+            await fetch("/api/books");
 
-            window.location.href =
-                "director-login.html";
+        const books =
+            await response.json();
+
+        if (!response.ok) {
+
+            directorBooksList.innerHTML =
+                "<p>فشل تحميل الكتب.</p>";
+
+            return;
         }
-    );
 
-    loadDirectorBooks();
+        if (books.length === 0) {
+
+            directorBooksList.innerHTML =
+                "<p>لا توجد كتب حتى الآن.</p>";
+
+            return;
+        }
+
+        directorBooksList.innerHTML = "";
+
+        books.forEach(book => {
+
+            const bookItem =
+                document.createElement("div");
+
+            bookItem.className =
+                "card";
+
+            bookItem.innerHTML = `
+
+                <h3>
+                    ${book.title}
+                </h3>
+
+                <a
+                    href="${book.file}"
+                    target="_blank"
+                    class="btn"
+                >
+                    قراءة الكتاب
+                </a>
+
+                <button
+                    class="btn"
+                    type="button"
+                    onclick="deleteBook('${book._id}')"
+                >
+                    حذف الكتاب
+                </button>
+
+            `;
+
+            directorBooksList.appendChild(
+                bookItem
+            );
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        directorBooksList.innerHTML =
+            "<p>لا يوجد اتصال بالخادم.</p>";
+    }
+}
+
+async function deleteBook(bookId) {
+
+    const token =
+        localStorage.getItem(
+            "halqaDirectorToken"
+        );
+
+    if (!token) {
+
+        window.location.href =
+            "director-login.html";
+
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            "هل تريد حذف هذا الكتاب؟"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/books/" + bookId,
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token
+                    }
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            deleteBookMessage.textContent =
+                data.message ||
+                "فشل حذف الكتاب.";
+
+            return;
+        }
+
+        deleteBookMessage.textContent =
+            "تم حذف الكتاب بنجاح.";
+
+        loadDirectorBooks();
+
+    } catch (error) {
+
+        console.error(error);
+
+        deleteBookMessage.textContent =
+            "لا يوجد اتصال بالخادم.";
+    }
+}
+
+logoutBtn.addEventListener(
+    "click",
+    function () {
+
+        localStorage.removeItem(
+            "halqaDirector"
+        );
+
+        localStorage.removeItem(
+            "halqaDirectorToken"
+        );
+
+        window.location.href =
+            "director-login.html";
+    }
+);
+
+loadDirectorBooks();
+
 </script>
+
 <script src="javascript.js"></script>
+
 </body>
 </html>

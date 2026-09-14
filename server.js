@@ -11,22 +11,23 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
-
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
 const uploadDir = path.join("/tmp", "uploads");
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
-app.use("/uploads", express.static(uploadFolder));
+app.use("/uploads", express.static(uploadDir));
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadFolder);
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const extension = path.extname(file.originalname);
@@ -35,6 +36,7 @@ const storage = multer.diskStorage({
     }
 });
 
+app.use("/uploads", express.static(uploadDir));
 const fileFilter = (req, file, cb) => {
     const allowedTypes = [
         "image/jpeg",
@@ -122,6 +124,14 @@ const directorSchema = new mongoose.Schema({
     }
 });
 
+const settingsSchema = new mongoose.Schema({
+    registrationOpen: {
+        type: Boolean,
+        default: true
+    }
+});
+
+const Settings = mongoose.model("Settings", settingsSchema);
 const Director = mongoose.model("Director", directorSchema);
 
 const bookSchema = new mongoose.Schema({
@@ -319,11 +329,74 @@ app.post("/api/director/login", async (req, res) => {
         });
     }
 });
+app.get("/api/registration-status", async (req, res) => {
+    try {
+        let settings = await Settings.findOne();
+
+        if (!settings) {
+            settings = await Settings.create({
+                registrationOpen: true
+            });
+        }
+
+        res.json({
+            registrationOpen: settings.registrationOpen
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "تعذر تحميل حالة التسجيل."
+        });
+    }
+});
+
+app.put("/api/registration-status", verifyDirector, async (req, res) => {
+    try {
+        const registrationOpen = req.body.registrationOpen;
+
+        if (typeof registrationOpen !== "boolean") {
+            return res.status(400).json({
+                message: "حالة التسجيل غير صحيحة."
+            });
+        }
+
+        let settings = await Settings.findOne();
+
+        if (!settings) {
+            settings = await Settings.create({
+                registrationOpen
+            });
+        } else {
+            settings.registrationOpen = registrationOpen;
+            await settings.save();
+        }
+
+        res.json({
+            message: registrationOpen
+                ? "تم فتح تسجيل الطلاب."
+                : "تم إيقاف تسجيل الطلاب.",
+            registrationOpen: settings.registrationOpen
+        });
+    } catch (error) {
+        console.error("Registration status error:", error);
+
+        res.status(500).json({
+            message: "تعذر تغيير حالة التسجيل."
+        });
+    }
+});
+
 app.post(
     "/api/students/register",
     upload.single("photo"),
     async (req, res) => {
         try {
+            const settings = await Settings.findOne();
+
+if (settings && !settings.registrationOpen) {
+    return res.status(403).json({
+        message: "تم إيقاف تسجيل الطلاب حالياً."
+    });
+}
             const name = String(req.body.name || "").trim();
             const gender = String(req.body.gender || "").trim();
             const grade = String(req.body.grade || "").trim();
@@ -436,6 +509,29 @@ app.get("/api/students", verifyDirector, async (req, res) => {
     }
 });
 
+app.delete("/api/students/:id", verifyDirector, async (req, res) => {
+    try {
+        const student = await Student.findById(req.params.id);
+
+        if (!student) {
+            return res.status(404).json({
+                message: "الطالب غير موجود."
+            });
+        }
+
+        await Student.findByIdAndDelete(req.params.id);
+
+        res.json({
+            message: "تم حذف الطالب بنجاح."
+        });
+    } catch (error) {
+        console.error("Student deletion error:", error);
+
+        res.status(500).json({
+            message: "فشل حذف الطالب."
+        });
+    }
+});
 app.post(
     "/api/books/upload",
     verifyDirector,
