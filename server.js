@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
+app.get("/director-login.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "director-login.html"));
+});
 const uploadDir = path.join("/tmp", "uploads");
 
 if (!fs.existsSync(uploadDir)) {
